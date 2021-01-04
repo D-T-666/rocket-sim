@@ -16,6 +16,10 @@ def get_parabola(u, v, y):
     return a, b, c
 
 
+def get_area(w, h):
+    return w * h * (2 / 3)
+
+
 def area_of_parabola(a, b, c):
 	x1 = (-b+math.sqrt(b*b-4*a*c))/(2*a)
 	x2 = (-b-math.sqrt(b*b-4*a*c))/(2*a)
