@@ -93,15 +93,13 @@ class Rocket():
 
         # ===
 
-        a,b,c = get_parabola(-self.thrust / (self.mass + self.fuel) - 9.8, 
-                             -self.thrust / (self.mass + self.fuel - 1) - 9.8)
+        # Derivative at x=0 and x=1
+        u = -self.thrust / (self.mass + self.fuel) - 9.8
+        v = -self.thrust / (self.mass + self.fuel - 1) - 9.8
+        # Initial height at x=0
+        y = self.thrust / (self.mass + self.fuel) - 9.8
 
-        self.a = a
-        self.b = b
-        self.c = c
-
-        tot_area, sub_tot_area = area_of_parabola(a, b, c)
-        return sub_tot_area
+        return get_positive_area(u, v, y)
 
 
 def run():

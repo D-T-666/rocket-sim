@@ -38,18 +38,28 @@ def get_width(a, b, c):
     return w
 
 
-def area_of_parabola(a, b, c):
-	x1 = (-b+math.sqrt(b*b-4*a*c))/(2*a)
-	x2 = (-b-math.sqrt(b*b-4*a*c))/(2*a)
+def get_positive_area(u, v, y):
+    # Extract a, b, c for the parabola
+    a, b, c = get_parabola(u, v, y)
 
-	y = ((4*a*c)-(b*b))/(4*a)
+    # Vertex of the parabola
+    px, py = get_vertex(a, b, c)
 
-	tot_area = abs(x2-x1)*abs(y)*(1/3)
+    # Area of the big parabola
+    w_big = get_width(a, b, c)
+    area_big = get_area(w_big, py)
 
-	x1 = b/a
+    # Area of the small parabola
+    w_small = get_width(a, b, 0)
+    h_small = py - y
+    area_small = get_area(w_small, h_small)
 
-	sub_tot_area = tot_area - c * x1 / 2 
+    # Area of the inferior rectangle
+    area_rect = w_small * y
 
-	sub_tot_area -= x1 * (y - c) * (1 / 3)
-	
-	return tot_area, sub_tot_area
+    # The difference between the big parabola
+    # and the small parabola plus the rectangle
+    final_area = area_big - area_small - area_rect
+
+    # Divide by 2 before returning, to only include the righthand side
+    return final_area / 2
