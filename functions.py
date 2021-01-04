@@ -26,6 +26,18 @@ def get_vertex(a, b, c):
     return x, y
 
 
+def get_width(a, b, c):
+    # Find the intersections
+    # and define the width as the distance inbetween
+    r1, r2 = np.roots([a, b, c])
+
+    if np.iscomplex(r1) or np.iscomplex(r2):
+        raise ValueError('Roots for parabola may not be complex')
+
+    w = abs(r2 - r1)
+    return w
+
+
 def area_of_parabola(a, b, c):
 	x1 = (-b+math.sqrt(b*b-4*a*c))/(2*a)
 	x2 = (-b-math.sqrt(b*b-4*a*c))/(2*a)
