@@ -1,13 +1,20 @@
 import math
+import numpy as np
+
+
+
+
 
 def lerp(a, b, p):
     return a + (b - a) * p
 
-def get_parabola(u, v):
+
+def get_parabola(u, v, y):
     a = (v - u) / 2
     b = u
-    c = u
+    c = y
     return a, b, c
+
 
 def area_of_parabola(a, b, c):
 	x1 = (-b+math.sqrt(b*b-4*a*c))/(2*a)
