@@ -20,6 +20,12 @@ def get_area(w, h):
     return w * h * (2 / 3)
 
 
+def get_vertex(a, b, c):
+    x = -b / (2 * a)
+    y = a*x**2 + b*x + c
+    return x, y
+
+
 def area_of_parabola(a, b, c):
 	x1 = (-b+math.sqrt(b*b-4*a*c))/(2*a)
 	x2 = (-b-math.sqrt(b*b-4*a*c))/(2*a)
