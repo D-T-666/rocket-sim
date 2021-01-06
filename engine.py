@@ -1,27 +1,37 @@
-import numpy as np
 import math
-from functions import *
+
+import numpy as np
 from rich import print
-import pid
+
+from functions import *
+from pid import PIDController
+
 
 class Rocket():
-	def __init__(self, dry_mass, alt, fuel, thrust, fuel_consumption, vel, state,
-				 target_alt):
+	def __init__(self, dry_mass, altitude, fuel, thrust, fuel_consumption, velocity, state, target_altitude):
+		# Massive properties
 		self.dry_mass = dry_mass
-		self.alt = alt
 		self.fuel = fuel
-		self.thrust = thrust
-		self.vel = vel
-		self.acc = 0
-		self.throttle = 0
-		self.fuel_consumption = 10
-		self.state = state
-		self.target_alt = target_alt
-		self.pid = pid.PID()
 
-		self.data_keys = [
-			'dry_mass', 'alt', 'fuel', 'thrust', 'vel', 'acc', 'throttle', 'ed'
-		]
+		# Location & Motion
+		self.altitude = altitude
+		self.velocity = velocity
+
+		# Operational & Engine
+		self.state = state
+		self.target_altitude = target_altitude
+		
+		self.fuel_consumption = fuel_consumption
+		self.thrust = thrust
+		self.throttle = 0
+
+
+		# Initialize and prepare PID controller
+		self.pid = PIDController(a=0.4, b=0.001, c=-2)
+		self.pid.prepare(current=0, target=target_altitude)
+
+		# Which values to collect during execution
+		self.data_keys = ['dry_mass', 'altitude', 'fuel', 'thrust', 'velocity', 'acceleration', 'throttle', 'ed']
 
 	def update(self, time_steps=1):
 		self._physics(time_steps)
@@ -29,55 +39,58 @@ class Rocket():
 		self._guidance(time_steps)
 
 		return {
-			'alt': self.alt,
-			'vel': self.vel,
-			'acc': self.acc,
+			'altitude': self.altitude,
+			'velocity': self.velocity,
+			'acceleration': self.acceleration,
 			'throttle': self.throttle,
 			'fuel': self.fuel,
 			'ed': self.estimated_distance(False)
 		}
 
 	def _physics(self, time_steps):
-		if self.alt <= 0:
+		if self.altitude <= 0:
 			return True
 
-		self.acc = self.thrust * (self.throttle
+		self.acceleration = self.thrust * (self.throttle
 								   if self.fuel >= 1 else self.throttle *
 								   self.fuel) / (self.dry_mass + self.fuel) - 9.8
 
-		self.vel += self.acc / time_steps
-		self.alt += self.vel / time_steps
+		self.velocity += self.acceleration / time_steps
+		self.altitude += self.velocity / time_steps
 
 		if self.fuel * time_steps >= self.throttle:
 			self.fuel -= self.throttle * self.fuel_consumption / time_steps
 			if self.fuel < 0:
 				self.fuel = 0
 
-	def _guidance(self, time_steps):
-		self.pid.update(self.target_alt, self.alt, self.vel, self.acc, time_steps)
+	def _guidance(self, t=1):
+		# Update PID using current error & velocity
+		error = self.target_altitude - self.altitude
+		derivative = self.velocity
+		self.pid.update(error, derivative=derivative, t=t)
 
 		if self.state == 'landing-0':
-			if self.estimated_distance() > self.alt:
+			if self.estimated_distance() > self.altitude:
 				self.throttle = .95
 				self.state = 'landing-1'
 			else:
 				self.throttle = 0
 
 		if self.state == 'landing-1':
-			if self.vel < 0:
-				if abs(self.estimated_distance() - self.alt) < 0.1:
+			if self.velocity < 0:
+				if abs(self.estimated_distance() - self.altitude) < 0.1:
 					self.throttle = .95
 					# self.state = 'landing-1'
-				elif self.alt - self.estimated_distance() > 0.1:
+				elif self.altitude - self.estimated_distance() > 0.1:
 					self.throttle = 0.9
-				elif self.alt - self.estimated_distance() < -0.1:
+				elif self.altitude - self.estimated_distance() < -0.1:
 					self.throttle = 1
 			else:
 				self.throttle = 7 / (self.thrust / (self.dry_mass + self.fuel))
 				self.state = 'landed'
 
 		elif self.state == 'hover':
-			desired_acc = self.pid.get_value()
+			desired_acc = self.pid.output()
 			self.throttle = desired_acc / (self.thrust / (self.dry_mass + self.fuel))
 
 		self.throttle = min(max(0, self.throttle), 1)
@@ -90,7 +103,7 @@ class Rocket():
 		u = x0
 		v = x1
 		# Initial height at x=0
-		y = abs(self.vel)
+		y = abs(self.velocity)
 
 		if log:
 			print(f'u: {u}, v: {v}, y: {y}\nEstimated distance: {get_positive_area(u, v, y)}\n')
@@ -101,13 +114,13 @@ class Rocket():
 def run():
 	data = {}
 	r = Rocket(dry_mass=100,
-			   alt=1,
+			   altitude=1,
 			   fuel=800,
 			   thrust=9000,
 			   fuel_consumption=10,
-			   vel=0,
+			   velocity=0,
 			   state='hover',
-			   target_alt=2000)
+			   target_altitude=2000)
 
 	for key in r.data_keys:
 		data[key] = []
@@ -127,7 +140,7 @@ def run():
 		# if i == simulation_duration_s*simulation_timesteps/2:
 		# 	r.state = 'landing-0'
 
-		if r.alt <= 0:
+		if r.altitude <= 0:
 			break
 
 	return data
