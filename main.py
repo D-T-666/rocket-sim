@@ -1,34 +1,52 @@
+# import matplotlib
+# matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import engine
-
+from functions import *
+import time
 
 def main():
-    results = engine.run()
+	results = engine.run()
 
-    plt.style.use('dark_background')
-    fig, axs = plt.subplots(2, 3, constrained_layout=True)
+	plt.style.use('dark_background')
+	fig = plt.figure(figsize=(12, 16))
+	axs = [0,0,0,0,0,0]
+	axs[0] = fig.add_subplot(3, 1, 1)
+	axs[1] = fig.add_subplot(3, 2, 3)
+	axs[2] = fig.add_subplot(6, 2, 10)
+	axs[3] = fig.add_subplot(6, 2, 12)
+	axs[4] = fig.add_subplot(3, 2, 5)
+	axs[5] = fig.add_subplot(3, 2, 4)
 
-    axs[0][0].plot(results["alt"])
-    axs[0][0].set_title('altitude')
+	axs[0].plot(results["alt"])
+	axs[0].plot([a-e for a,e in zip(results["alt"], results["ed"])], '--', alpha=0.3)
+	axs[0].plot([0 for a in results["alt"]], '-.')
+	axs[0].set_title('altitude')
 
-    axs[0][1].plot(results["vel"])
-    axs[0][1].set_title('velocity')
+	axs[1].plot(results["vel"])
+	axs[1].plot([0 for a in results["alt"]], '-.')
+	axs[1].set_title('velocity')
 
-    axs[0][2].plot(results["fuel"])
-    axs[0][2].set_title('fuel')
+	axs[2].plot(results["fuel"])
+	axs[2].set_title('fuel')
 
-    axs[1][0].plot(results["throttle"])
-    axs[1][0].set_title('throttle')
+	axs[3].plot(results["ed"])
+	axs[3].set_title('estimated distance')
 
-    axs[1][1].plot(results["acc"])
-    axs[1][1].set_title('acceleration')
+	axs[4].plot(results["acc"])
+	axs[4].plot([0 for a in results["alt"]], alpha=0.5)
+	axs[4].set_title('acceleration')
 
-    axs[1][2].plot(results["ed"])
-    axs[1][2].set_title('estimated distance')
+	axs[5].plot(results["throttle"])
+	axs[5].set_title('throttle')
 
-    plt.show(block=True)
+	fig.tight_layout()
 
+	# plt.savefig('D:\\python\\rocket-sim\plots\\fig-'+str(int(time.time()))+'.svg')
+	plt.show()
+
+main()
 
 # def plot():
 #     plt.style.use('dark_background')
@@ -38,30 +56,4 @@ def main():
 	
 #     plt.show(block=True)
 
-
-main()
-
 # plot()
-
-# def f(t):
-#     s1 = np.cos(2*np.pi*t)
-#     e1 = np.exp(-t)
-#     return s1 * e1
-
-# t1 = np.arange(0.0, 5.0, 0.1)
-# t2 = np.arange(0.0, 5.0, 0.02)
-# t3 = np.arange(0.0, 2.0, 0.01)
-
-# fig, axs = plt.subplots(2, 1, constrained_layout=True)
-# axs[0].plot(t1, f(t1), 'o', t2, f(t2), '-')
-# axs[0].set_title('subplot 1')
-# axs[0].set_xlabel('distance (m)')
-# axs[0].set_ylabel('Damped oscillation')
-# fig.suptitle('This is a somewhat long figure title', fontsize=16)
-
-# axs[1].plot(t3, np.cos(2*np.pi*t3), '--')
-# axs[1].set_xlabel('time (s)')
-# axs[1].set_title('subplot 2')
-# axs[1].set_ylabel('Undamped')
-
-# plt.show()
