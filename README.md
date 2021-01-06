@@ -26,4 +26,4 @@ Super minimal, 1D rocket launch and landing simulation.
 - [ ] * 2D
   - [ ] * yaw controll
   - [ ] * location targetting
-  - [ ] * laiding
+  - [ ] * landing
