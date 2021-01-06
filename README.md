@@ -2,6 +2,8 @@
 
 Super minimal, 1D rocket launch and landing simulation.
 
+![a demo plot of the simulation data](/plots/fig-1609936940.png)
+
 ## features:
 - [x] takeoff
 - [x] hover
@@ -25,5 +27,3 @@ Super minimal, 1D rocket launch and landing simulation.
   - [ ] * yaw controll
   - [ ] * location targetting
   - [ ] * laiding
-
-!(a demo plot of the simulation data)[/plots/fig-1609936940.png]
