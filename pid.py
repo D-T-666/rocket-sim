@@ -1,4 +1,4 @@
-class PIDController:
+class PID:
 	def __init__(self, a, b, c, initial_error=None):
 		# (a, b, c) are the weights for (p, i, d)
 		self.a = a
