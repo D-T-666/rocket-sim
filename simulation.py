@@ -22,7 +22,7 @@ class Simulation:
 				abs(targets[j][1] - targets[j - 1][1])
 				for j in range(1, len(targets))
 			])
-			wiggle_room = 500
+			wiggle_room = 2000
 			self.failsafe = total_length + total_difference + wiggle_room
 
 	def __iter__(self):
@@ -39,8 +39,8 @@ class Simulation:
 				target_timer += 1
 
 				if target_timer >= length:
-					self.next_target()
 					print(f'Target of {target} is met.')
+					self.next_target()
 			
 			else:
 				target_timer = 0
@@ -74,12 +74,12 @@ def example():
 	# targets = [2000, 1500, 2500, 0]
 	targets = [
 		(200, 100),
+		(1000, 100),
 		(500, 100),
-		(30, 100),
-		(40, 100),
-		(0, 100),
-		(30, 100),
-		(0, 100),
+		(400, 100),
+		(2000, 100),
+		(3000, 100),
+		(100, 100),
 	]
 	timesteps = 50
 	frequency = 1
@@ -88,7 +88,7 @@ def example():
 		controller = Controller(),
 		targets = targets,
 		timesteps = 50,
-		sensitivity = 200
+		sensitivity = 20
 	)
 
 	try:
