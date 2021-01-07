@@ -15,7 +15,7 @@ class Controller:
 				fuel = 800,
 				altitude=1,
 				velocity=0,
-				fuel_consumption=10,
+				fuel_consumption=1,
 				thrust = 9000
 			)
 		
@@ -23,12 +23,17 @@ class Controller:
 		if pid is not None:
 			self.pid = pid
 		else:
-			self.pid = PID(a=0.4, b=0.001, c=-2)
+			self.pid = PID(a=0.6, b=0.001, c=-2.5)
 
 	def set_target(self, target_altitude):
 		self.pid.prepare(current=self.rocket.altitude, target=target_altitude)
-		self.state = 'hover'
-		print(f'PID prepared for {target_altitude}')
+		
+		if target_altitude > 0:
+			self.state = 'hover'
+		else:
+			self.state = 'landing-0'
+
+		print(f'PID prepared for {target_altitude}, {self.state}')
 
 	def update(self, target_altitude, t=1):
 		""" Steer rocket for t number of time steps """
