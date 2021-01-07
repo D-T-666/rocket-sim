@@ -71,7 +71,6 @@ def example():
 	
 	controller = Controller()
 
-	# targets = [2000, 1500, 2500, 0]
 	targets = [
 		(200, 100),
 		(1000, 100),
