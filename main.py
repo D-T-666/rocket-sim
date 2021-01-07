@@ -4,15 +4,25 @@ import os
 import sys
 import time
 
+import controller
+import simulation
+
 import numpy as np
 import matplotlib.pyplot as plt
 
-import engine
 from functions import *
 
 
 def main():
-	results = engine.run()
+	# Get keys of Rocket through a Dummy Controller object
+	keys = controller.Controller().rocket.dict().keys()
+	results = {key: [] for key in keys}
+	
+	# Start & collect data from example simulation
+	for data in simulation.example():
+		for key, value in data.items():
+			results[key].append(value)
+
 
 	plt.style.use('dark_background')
 	fig = plt.figure(figsize=(12, 16))
@@ -25,7 +35,7 @@ def main():
 	axs[5] = fig.add_subplot(3, 2, 4)
 
 	axs[0].plot(results["altitude"])
-	axs[0].plot([a-e for a,e in zip(results["altitude"], results["ed"])], '--', alpha=0.3)
+	axs[0].plot([a-e for a,e in zip(results["altitude"], results["estimated_distance"])], '--', alpha=0.3)
 	axs[0].plot([0 for a in results["altitude"]], '-.')
 	axs[0].set_title('altitude')
 
@@ -36,8 +46,8 @@ def main():
 	axs[2].plot(results["fuel"])
 	axs[2].set_title('fuel')
 
-	axs[3].plot(results["ed"])
-	axs[3].set_title('estimated distance')
+	axs[3].plot(results["estimated_distance"])
+	axs[3].set_title('estimated_distance')
 
 	axs[4].plot(results["acceleration"])
 	axs[4].plot([0 for a in results["altitude"]], alpha=0.5)
