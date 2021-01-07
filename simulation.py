@@ -1,11 +1,8 @@
 from controller import Controller
 
 
-FAILSAFE_DURATION = 1000
-
-
 class Simulation:
-	def __init__(self, controller, targets, timesteps=1):
+	def __init__(self, controller, targets, timesteps=1, sensitivity=10, failsafe=None):
 		""" Run a simulation on a Controller object
 		
 		targets is a list of tuples each containing length & altitude
@@ -14,20 +11,41 @@ class Simulation:
 		self.controller = controller
 		self.targets = [None, *targets]
 		self.timesteps = timesteps
+		self.sensitivity = sensitivity
+
+		if failsafe:
+			self.failsafe = failsafe
+		else:
+			# Calculate a reasonable failsafe limit
+			total_length = sum(length for target, length in targets)
+			total_difference = sum([0] + [
+				abs(targets[j][1] - targets[j - 1][1])
+				for j in range(1, len(targets))
+			])
+			wiggle_room = 500
+			self.failsafe = total_length + total_difference + wiggle_room
 
 	def __iter__(self):
 		self.next_target()
 		
-		i = 1
+		i = 0
+		target_timer = 0
 		while True:
 			target, length = self.targets[0]
 
+			# Count time when stable at target altitude
 			distance = abs(self.controller.rocket.altitude - target)
-			if i > length and distance <= 50:
-				self.next_target()
-				print(f'Target of {target} is met.')
+			if distance <= self.sensitivity:
+				target_timer += 1
 
-			if self.targets and i >= FAILSAFE_DURATION:
+				if target_timer >= length:
+					self.next_target()
+					print(f'Target of {target} is met.')
+			
+			else:
+				target_timer = 0
+
+			if self.targets and i >= self.failsafe:
 				break
 				raise RuntimeError('Simulation failed to meet all targets')
 
@@ -55,18 +73,22 @@ def example():
 
 	# targets = [2000, 1500, 2500, 0]
 	targets = [
-		(2000, 100),
-		(3000, 100),
+		(200, 100),
+		(500, 100),
+		(30, 100),
+		(40, 100),
 		(0, 100),
-		(2000, 100)
+		(30, 100),
+		(0, 100),
 	]
 	timesteps = 50
 	frequency = 1
 
 	simulation = Simulation(
-		controller,
-		targets,
-		timesteps
+		controller = Controller(),
+		targets = targets,
+		timesteps = 50,
+		sensitivity = 200
 	)
 
 	try:
