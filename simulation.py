@@ -69,8 +69,6 @@ class Simulation:
 def example():
 	""" An example test with a rocket launching, hovering, & landing """
 	
-	controller = Controller()
-
 	targets = [
 		(200, 100),
 		(1000, 100),
