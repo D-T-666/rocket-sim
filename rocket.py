@@ -25,43 +25,55 @@ class Rocket:
 		self.fuel_consumption = fuel_consumption
 		self.thrust = thrust
 		self.throttle = 0
-
-		# Which values to collect during execution
-		self.data_keys = ['dry_mass', 'altitude', 'fuel', 'thrust', 'velocity', 'acceleration', 'throttle', 'ed']
-
+		
 	@property
 	def total_mass(self):
 		return self.dry_mass + self.fuel
 
+	def dict(self):
+		return {
+			'dry_mass': self.dry_mass,
+			'fuel': self.fuel,
+
+			'altitude': self.altitude,
+			'velocity': self.velocity,
+			'acceleration': self.acceleration,
+
+			'fuel_consumption': self.fuel_consumption,
+			'thrust': self.thrust,
+			'throttle': self.throttle,
+
+			'estimated_distance': self.estimated_distance()
+		}
+
+	def reset_motion(self):
+		self.altitude = 1
+		self.velocity = 0
+		self.acceleration = 0
+
 	def update(self, t=1):
 		""" Update the physical properties """
 
-		if self.altitude <= 0:
-			return True
-
+		# Update acceleration based on available fuel & throttle
 		throttle = self.throttle if self.fuel >= 1 else self.throttle * self.fuel
 		self.acceleration = self.thrust * throttle / self.total_mass - GRAVITY
 
 		self.velocity += self.acceleration / t
 		self.altitude += self.velocity / t
+		
+		# Collide with the ground
+		if self.altitude <= 0:
+			self.reset_motion()
 
+		# Update remaining fuel
 		if self.fuel * t >= self.throttle:
 			self.fuel -= self.throttle * self.fuel_consumption / t
 			if self.fuel < 0:
 				self.fuel = 0
 
-		return {
-			'fuel': self.fuel,
-			'altitude': self.altitude,
-			'velocity': self.velocity,
-			'acceleration': self.acceleration,
-			'throttle': self.throttle,
-			'ed': self.estimated_distance()
-		}
-
 	def estimated_distance(self, log=False):
 		""" Returns the estimated of distance of how far the rocket would go,
-		    if it would go almost full throttle at this moment
+			if it would go almost full throttle at this moment
 		"""
 		
 		x0 = GRAVITY - self.thrust*.95 / (self.total_mass - self.fuel_consumption * 0.0)
