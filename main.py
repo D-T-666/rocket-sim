@@ -15,7 +15,7 @@ from functions import *
 
 def main():
 	# Get keys of Rocket through a Dummy Controller object
-	keys = controller.Controller().rocket.dict().keys()
+	keys = controller.Controller().get_data_channels().keys()
 	results = {key: [] for key in keys}
 	
 	# Start & collect data from example simulation

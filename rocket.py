@@ -11,7 +11,9 @@ GRAVITY = 9.8
 
 
 class Rocket:
-	def __init__(self, dry_mass, fuel, altitude, velocity, fuel_consumption, thrust):
+	def __init__(self, parent, dry_mass, fuel, altitude, velocity, fuel_consumption, thrust):
+		self.parent = parent
+
 		# Massive properties
 		self.dry_mass = dry_mass
 		self.fuel = fuel
@@ -59,7 +61,8 @@ class Rocket:
 		}
 
 	def reset_motion(self):
-		self.altitude = 1
+		self.parent.state = 'touchdown'
+		self.altitude = 0
 		self.velocity = 0
 		self.acceleration = 0
 
@@ -78,8 +81,8 @@ class Rocket:
 			self.reset_motion()
 
 		# Update remaining fuel
-		if self.fuel * t >= self.throttle:
-			self.fuel -= self.throttle * self.fuel_consumption / t
+		if self.fuel * t >= throttle:
+			self.fuel -= throttle * self.fuel_consumption / t
 			if self.fuel < 0:
 				self.fuel = 0
 
