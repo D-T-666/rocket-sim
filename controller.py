@@ -23,11 +23,9 @@ class Controller:
 		if pid is not None:
 			self.pid = pid
 		else:
-			self.pid = PID(a=0.6, b=0.001, c=-2.5)
+			self.pid = PID(P=0.6, I=0.001, D=-2.5)
 
 	def set_target(self, target_altitude):
-		self.pid.prepare(current=self.rocket.altitude, target=target_altitude)
-		
 		if target_altitude > 0:
 			self.state = 'hover'
 		else:
@@ -37,14 +35,11 @@ class Controller:
 
 	def update(self, target_altitude, t=1):
 		""" Steer rocket for t number of time steps """
+
+		self.pid_p, self.pid_i, self.pid_d = self.pid.get_pid()
 		
 		# Update the physical properties of the rocket
 		self.rocket.update()
-
-		# Update PID using current error & velocity
-		error = target_altitude - self.rocket.altitude
-		derivative = self.rocket.velocity
-		self.pid.update(error, derivative, t=t)
 
 		# Follow protocol based on current state
 		if self.state == 'landing-0':
@@ -70,10 +65,10 @@ class Controller:
 				self.state = 'landed'
 
 		elif self.state == 'hover':
-			desired_acceleration = self.pid.output()
-			self.rocket.throttle = desired_acceleration / (self.rocket.thrust / self.rocket.total_mass)
+			self.desired_acceleration = self.pid(target_altitude - self.rocket.altitude, t=t)
+			self.rocket.desired_throttle = self.desired_acceleration / (self.rocket.thrust / self.rocket.total_mass)
 
-		self.rocket.throttle = min(max(0, self.rocket.throttle), 1)
+		self.rocket.throttle = min(max(0, self.rocket.desired_throttle), 1)
 
 		# Return rocket data for logging
 		return self.rocket.dict()

@@ -25,6 +25,13 @@ class Rocket:
 		self.fuel_consumption = fuel_consumption
 		self.thrust = thrust
 		self.throttle = 0
+
+		#
+		self.desired_acceleration = 0
+		self.desired_throttle = 0
+		self.pid_p = 0
+		self.pid_i = 0
+		self.pid_d = 0
 		
 	@property
 	def total_mass(self):
@@ -43,7 +50,12 @@ class Rocket:
 			'thrust': self.thrust,
 			'throttle': self.throttle,
 
-			'estimated_distance': self.estimated_distance()
+			'estimated_distance': self.estimated_distance(),
+			'desired_acceleration': self.desired_acceleration, 
+			'desired_throttle': self.desired_throttle,
+			'pid_p': self.pid_p,
+			'pid_i': self.pid_i,
+			'pid_d': self.pid_d
 		}
 
 	def reset_motion(self):
