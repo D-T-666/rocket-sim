@@ -1,65 +1,43 @@
 import math
-import numpy as np
-
-
-
-
 
 def lerp(a, b, p):
-    return a + (b - a) * p
+	return a + (b - a) * p
+
+def ignition_time(a, b, c, t):
+	# a - Gravitational acceration
+	# b - Current velocity
+	# c - Current altitude
+	# t - Acceleration on powered descent
+
+	# The discriminant
+	D = b**2 - 4*a*c
+
+	# New a
+	na = a + t
+
+	# The time (in seconds) until iginition for optimal landing.
+	k = -(math.sqrt(t * na * D) + b * t) / (2 * a * t)
+
+	# The time until touchdown if ignition occures at k
+	x = (2*t*k - b) / (2 * na)
+
+	return k, x
 
 
-def get_parabola(u, v, y):
-    a = (v - u) / 2
-    b = u
-    c = y
-    return a, b, c
+def get_positive_area(b, v, c):
+	# 2a
+	_2a = v-b
 
+	# a
+	a = _2a/2
 
-def get_area(w, h):
-    return w * h * (2 / 3)
+	# Discriminant 
+	D = b**2 - 4 * a * c
 
+	# Square root of the discriminant if it's not imaginary and if it is, replace it with 0.
+	D_ = math.sqrt(D) if D >= 0 else 0
 
-def get_vertex(a, b, c):
-    x = -b / (2 * a)
-    y = a*x**2 + b*x + c
-    return x, y
+	# The area of the rectangle with 2 edges lying on the positive y and negative x axis and the top edge at y = c where c is the intersection point of the paraboly with the y axis, and the left edge at the x = x₀ where x₀ is the center of the parabola.
+	cx0 = c * -b / _2a
 
-
-def get_width(a, b, c):
-    # Find the intersections
-    # and define the width as the distance inbetween
-    r1, r2 = np.roots([a, b, c])
-
-    if np.iscomplex(r1) or np.iscomplex(r2):
-        raise ValueError('Roots for parabola may not be complex')
-
-    w = abs(r2 - r1)
-    return w
-
-
-def get_positive_area(u, v, y):
-    # Extract a, b, c for the parabola
-    a, b, c = get_parabola(u, v, y)
-
-    # Vertex of the parabola
-    px, py = get_vertex(a, b, c)
-
-    # Area of the big parabola
-    w_big = get_width(a, b, c)
-    area_big = get_area(w_big, py)
-
-    # Area of the small parabola
-    w_small = get_width(a, b, 0)
-    h_small = py - y
-    area_small = get_area(w_small, h_small)
-
-    # Area of the inferior rectangle
-    area_rect = w_small * y
-
-    # The difference between the big parabola
-    # and the small parabola plus the rectangle
-    final_area = area_big - area_small - area_rect
-
-    # Divide by 2 before returning, to only include the righthand side
-    return final_area / 2
+	return (D_**3 + b**3) / (12*a**2) + cx0
