@@ -2,7 +2,7 @@
 
 Super minimal, 1D rocket launch and landing simulation.
 
-![a demo plot of the simulation data](/plots/fig-1609936940.png)
+![a demo plot of the simulation data](/plots/fig-refreshing.png)
 
 ## features:
 - [x] takeoff
